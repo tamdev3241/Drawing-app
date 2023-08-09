@@ -5,10 +5,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
+import androidx.core.view.get
 
 class MainActivity : AppCompatActivity() {
     private var drawingView: DrawingView? = null
     private var brushBtn : ImageButton? = null
+    private var mImageButtonCurrentPaint: ImageButton? =
+        null // A variable for current color is picked from color pallet.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -17,12 +22,19 @@ class MainActivity : AppCompatActivity() {
         drawingView!!.setSizeForBrush(20.toFloat())
 
         brushBtn = findViewById(R.id.ib_brush)
-        brushBtn!!.setOnClickListener(function())
-        
-    }
+        brushBtn!!.setOnClickListener{
+            showBrushSizeChooserDialog()
+        }
 
-    private fun function(): (View) -> Unit = {
-        showBrushSizeChooserDialog()
+        val linearLayoutPaintColors = findViewById<LinearLayout>(R.id.ll_paint_colors)
+        mImageButtonCurrentPaint = linearLayoutPaintColors[1] as ImageButton
+        mImageButtonCurrentPaint?.setImageDrawable(
+            ContextCompat.getDrawable(
+                this,
+                R.drawable.pallet_pressed
+            )
+        )
+        
     }
 
     private fun showBrushSizeChooserDialog() {
@@ -47,5 +59,28 @@ class MainActivity : AppCompatActivity() {
         }
 
         brushDialog.show()
+    }
+
+    fun paintClicked(view: View) {
+        if (view !== mImageButtonCurrentPaint) {
+            // Update the color
+            val imageButton = view as ImageButton
+            // Here the tag is used for swaping the current color with previous color.
+            // The tag stores the selected view
+            val colorTag = imageButton.tag.toString()
+            // The color is set as per the selected tag here.
+            drawingView?.setColor(colorTag)
+            // Swap the backgrounds for last active and currently active image button.
+            imageButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.pallet_pressed))
+            mImageButtonCurrentPaint?.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.pallet_normal
+                )
+            )
+
+            //Current view is updated with selected view in the form of ImageButton.
+            mImageButtonCurrentPaint = view
+        }
     }
 }
