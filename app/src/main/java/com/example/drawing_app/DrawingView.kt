@@ -7,15 +7,15 @@ import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 
-class DrawingView (context: Context, attrs: AttributeSet) : View (context, attrs) {
-    private var mDrawPath : CustomPath? = null
+class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
+    private var mDrawPath: CustomPath? = null
     private var mCanvasBitmap: Bitmap? = null
     private var mDrawPaint: Paint? = null
     private var mCanvasPaint: Paint? = null
     private var mBrushSize: Float = 0.toFloat()
     private var color = Color.BLACK
     private var canvas: Canvas? = null
-//    private var mPaths = ArrayList<CustomPath>()
+    private var mPaths = ArrayList<CustomPath>()
 
     init {
         setUpDrawing()
@@ -28,9 +28,7 @@ class DrawingView (context: Context, attrs: AttributeSet) : View (context, attrs
         mDrawPaint!!.style = Paint.Style.STROKE
         mDrawPaint!!.strokeJoin = Paint.Join.ROUND
         mDrawPaint!!.strokeCap = Paint.Cap.ROUND
-
         mCanvasPaint = Paint(Paint.DITHER_FLAG)
-        mBrushSize = 20.toFloat()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -45,13 +43,13 @@ class DrawingView (context: Context, attrs: AttributeSet) : View (context, attrs
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-            canvas.drawBitmap(mCanvasBitmap!!, 0f, 0f, mCanvasPaint)
+        canvas.drawBitmap(mCanvasBitmap!!, 0f, 0f, mCanvasPaint)
 
-//        for (p in mPaths) {
-//            mDrawPaint?.strokeWidth = p.brushThickness
-//            mDrawPaint?.color = p.color
-//            canvas.drawPath(p, mDrawPaint!!)
-//        }
+        for (path in mPaths) {
+            mDrawPaint?.strokeWidth = path.brushThickness
+            mDrawPaint?.color = path.color
+            canvas.drawPath(path, mDrawPaint!!)
+        }
 
         if (!mDrawPath!!.isEmpty) {
             mDrawPaint!!.strokeWidth = mDrawPath!!.brushThickness
@@ -63,30 +61,34 @@ class DrawingView (context: Context, attrs: AttributeSet) : View (context, attrs
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return super.onTouchEvent(event)
 
-        when (event?.action) {
-            MotionEvent.ACTION_DOWN -> {
-                mDrawPath!!.color = color
-                mDrawPath!!.brushThickness = mBrushSize
+        if (event?.action == MotionEvent.ACTION_DOWN) {
+            mDrawPath!!.color = color
+            mDrawPath!!.brushThickness = mBrushSize
 
-                mDrawPath!!.reset()
-                mDrawPath!!.moveTo(event.x, event.y)
-            }
-
-            MotionEvent.ACTION_MOVE -> {
-                mDrawPath!!.lineTo(event.x, event.y)
-            }
-
-            MotionEvent.ACTION_UP -> {
-//                mPaths.add(mDrawPath!!)
-                mDrawPath = CustomPath(color, mBrushSize)
-            }
-            else -> return false
+            mDrawPath!!.reset()
+            mDrawPath!!.moveTo(event.x, event.y)
         }
+        else if (event?.action == MotionEvent.ACTION_MOVE) {
+            mDrawPath!!.lineTo(event.x, event.y)
+        }
+        else if (event?.action == MotionEvent.ACTION_UP) {
+    //                mPaths.add(mDrawPath!!)
+            mDrawPath = CustomPath(color, mBrushSize)
+        }
+        else return false
 
         invalidate()
 
         return true
     }
 
-    internal inner class CustomPath (var color: Int, var brushThickness: Float) : Path() {}
+    fun setSizeForBrush(newSize: Float) {
+        mBrushSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics
+        )
+        mDrawPaint!!.strokeWidth = mBrushSize
+    }
+
+
+    internal inner class CustomPath(var color: Int, var brushThickness: Float) : Path() {}
 }
