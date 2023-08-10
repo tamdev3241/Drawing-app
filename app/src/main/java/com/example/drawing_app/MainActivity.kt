@@ -195,7 +195,7 @@ class MainActivity : AppCompatActivity() {
         return result == PackageManager.PERMISSION_GRANTED
     }
     private suspend fun saveBitmapFile(mBitmap: Bitmap?): String{
-        var result: String = ""
+        var result = ""
 
         withContext(Dispatchers.IO) {
             if (mBitmap != null) {
@@ -261,7 +261,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        return result;
+        return result
     }
 
     private fun getBitmapFormView(view: View) :Bitmap {
