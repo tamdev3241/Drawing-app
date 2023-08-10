@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private var mImageButtonCurrentPaint: ImageButton? =
         null // A variable for current color is picked from color pallet.
 
+    private var customProgressDialog: Dialog? = null
     private val requestPermission: ActivityResultLauncher<Array<String>> = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()) {
             permission ->  permission.entries.forEach {
@@ -93,6 +94,7 @@ class MainActivity : AppCompatActivity() {
         saveBtn = findViewById(R.id.ib_save)
         saveBtn!!.setOnClickListener{
             if (isReadStorageAllowed()) {
+                showProgressDialog()
                 lifecycleScope.launch {
                     val fDrawingView: FrameLayout = findViewById(R.id.fl_drawing_view_container)
 
@@ -237,7 +239,8 @@ class MainActivity : AppCompatActivity() {
                     result = f.absolutePath // The file absolute path is return as a result.
                     //We switch from io to ui thread to show a toast
                     runOnUiThread {
-                        if (!result.isEmpty()) {
+                        cancelProgressDialog()
+                        if (result.isNotEmpty()) {
                             Toast.makeText(
                                 this@MainActivity,
                                 "File saved successfully :$result",
@@ -259,6 +262,7 @@ class MainActivity : AppCompatActivity() {
         }
         return result;
     }
+
     private fun getBitmapFormView(view: View) :Bitmap {
         val returnedBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
 
@@ -275,5 +279,19 @@ class MainActivity : AppCompatActivity() {
         view.draw(canvas)
 
         return returnedBitmap
+    }
+
+    private fun showProgressDialog() {
+        customProgressDialog = Dialog(this)
+        customProgressDialog!!.setContentView(R.layout.progress_dialog)
+
+        customProgressDialog!!.show()
+    }
+
+    private fun cancelProgressDialog() {
+        if (customProgressDialog != null) {
+            customProgressDialog!!.dismiss()
+            customProgressDialog = null
+        }
     }
 }
