@@ -21,6 +21,7 @@ import androidx.core.view.get
 class MainActivity : AppCompatActivity() {
     private var drawingView: DrawingView? = null
     private var brushBtn : ImageButton? = null
+    private var undoBtn : ImageButton? = null
     private var mImageButtonCurrentPaint: ImageButton? =
         null // A variable for current color is picked from color pallet.
 
@@ -70,6 +71,11 @@ class MainActivity : AppCompatActivity() {
             showBrushSizeChooserDialog()
         }
 
+        undoBtn = findViewById(R.id.ib_undo)
+        undoBtn!!.setOnClickListener{
+            drawingView?.onClickUndo()
+        }
+
         val linearLayoutPaintColors = findViewById<LinearLayout>(R.id.ll_paint_colors)
         mImageButtonCurrentPaint = linearLayoutPaintColors[1] as ImageButton
         mImageButtonCurrentPaint?.setImageDrawable(
@@ -84,6 +90,8 @@ class MainActivity : AppCompatActivity() {
             requestStoragePermission()
         }
     }
+
+
 
     private fun requestStoragePermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(

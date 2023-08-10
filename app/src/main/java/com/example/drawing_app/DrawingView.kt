@@ -26,6 +26,7 @@ class DrawingView(context: Context,attrs:AttributeSet): View(context,attrs) {
 
     private val mPaths = ArrayList<CustomPath>() // ArrayList for Paths
 
+    private val mUndoPaths = ArrayList<CustomPath>() // ArrayList for Paths
     init {
         setUpDrawing()
     }
@@ -48,6 +49,12 @@ class DrawingView(context: Context,attrs:AttributeSet): View(context,attrs) {
 
     }
 
+    fun onClickUndo() {
+        if (mPaths.size > 0) {
+            mUndoPaths.add(mPaths.removeAt(mPaths.size -1))
+            invalidate()
+        }
+    }
     override fun onSizeChanged(w: Int, h: Int, wprev: Int, hprev: Int) {
         super.onSizeChanged(w, h, wprev, hprev)
         mCanvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
